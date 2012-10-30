@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Ace Processing JS</title>
+  <style type="text/css" media="screen">
+    .editor { 
+      margin: 20px;
+      border: 2px solid #d0d0d0;      
+      width: 600px;
+      height: 450px;
+    }
+    .display {
+      margin: 20px;
+    }
+    .controls {
+      margin: 20px;
+    }
+    .canvas1 {
+      border: 2px solid #d0d0d0;      
+      width: 200px;
+      height: 200px;
+    }
+  </style>
+</head>
+  <body>
+
+	<h1>Ace Processing JS demo</h1>
+	
+  <div class="display">
+    <canvas id="sketch" class="canvas1"></canvas>    
+  </div>
+  
+  <div class="controls">
+    <button onclick="startSketch();">Start</button>
+    <button onclick="stopSketch();">Stop</button>        
+  </div>
+
+  <pre id="the-editor" class="editor">
+// Processing JS:
+// http://processingjs.org/
+	
+// ACE Editor:
+// http://ace.ajax.org/
+
+// This particular example taken from:
+// http://sketchpad.cc/8Dz54p3DYV
+
+int i = 0; 
+
+void setup() {
+  size(200, 200); 
+  background(255);
+  smooth();
+  strokeWeight(15);
+  frameRate(24);
+} 
+
+void draw() {
+  stroke(random(50), random(255), random(255), 100);
+  line(i, 0, random(0, width), height);
+  if (i &lt; width) {
+    i++;
+  } else {
+    i = 0; 
+  }
+}        
+  </pre>
+    
+  <script src="ace/src/ace.js" type="text/javascript" charset="utf-8"></script>
+  <script src="processing/processing-1.4.1.js" type="text/javascript" charset="utf-8"></script>    
+  <script type="application/javascript">
+    // initialize ACE editor, set a few options
+    var editor = ace.edit("the-editor");
+    editor.setTheme("ace/theme/twilight");
+    editor.getSession().setMode("ace/mode/java");
+		editor.getSession().setTabSize(2);
+  
+    // compile processing code to js code, then run it
+      var canvas = document.getElementById("sketch");
+      var processingInstance;
+      
+      function startSketch() {
+				// stop first if already running
+				if(processingInstance) {
+					stopSketch();
+				}
+        // get processing sketch source code from ACE editor
+        var processingCode = editor.getValue();
+        // compile it using Processing JS 
+        var jsCodeStr = Processing.compile(processingCode).sourceCode;
+        // evaluate it to actual JS code
+				var jsCode = eval(jsCodeStr);
+				// create new Processing instance, and associate to canvas
+        processingInstance = new Processing(canvas, jsCode); 
+        // put Processing sketch to run
+        switchSketchState(true);
+      }
+
+      function stopSketch() {
+        switchSketchState(false);
+        processingInstance = null;
+      }
+      
+      function switchSketchState(on) {
+        if (processingInstance) {
+          if (on) {
+            processingInstance.loop();  // call Processing loop() function
+          } else {
+            processingInstance.noLoop(); // stop animation, call noLoop()
+          }
+        }
+      }
+  </script>
+
+  </body>
+</html>
